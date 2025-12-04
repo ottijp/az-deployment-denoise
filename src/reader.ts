@@ -24,16 +24,23 @@ export async function readFile(path?: string): Promise<string> {
 }
 
 /**
- * Get validation error paths.
+ * Get validation error paths and messages.
  * cf. https://github.com/gcanti/io-ts/blob/master/index.md#error-reporters
  * @param v - io-ts decoded result
- * @returns paths that caused errors
+ * @returns paths and messages that caused errors
  */
-const getPaths = <A>(v: t.Validation<A>): Array<string> => {
+const getErrorDetails = <A>(v: t.Validation<A>): Array<string> => {
   return pipe(
     v,
     fold(
-      (errors) => errors.map((error) => error.context.map(({ key }) => key).join('.')),
+      (errors) => errors.map((error) => {
+        const path = error.context.map(({ key }) => key).join('.')
+        // Check if the error has a custom message
+        if (error.message) {
+          return `${path}: ${error.message}`
+        }
+        return path
+      }),
       () => ['no errors'],
     ),
   )
@@ -48,7 +55,7 @@ export async function readOperationResult(path?: string): Promise<OperationResul
   const content = await readFile(path)
   const decoded = OperationResultT.decode(JSON.parse(content))
   if (isLeft(decoded)) {
-    throw Error(`invalid what-if operation result at [${getPaths(decoded).join(', ')}]`)
+    throw Error(`invalid what-if operation result at [${getErrorDetails(decoded).join(', ')}]`)
   }
   return decoded.right
 }
@@ -69,7 +76,7 @@ export async function readConfig(path: string): Promise<Config> {
   }
   const decoded = ConfigT.decode(configObject)
   if (isLeft(decoded)) {
-    throw Error(`invalid config at [${getPaths(decoded).join(', ')}]`)
+    throw Error(`invalid config at [${getErrorDetails(decoded).join(', ')}]`)
   }
   return decoded.right
 }
