@@ -1,5 +1,5 @@
 # build stage
-FROM node:20 as build
+FROM node:22 as build
 
 WORKDIR /app
 COPY . .
@@ -7,7 +7,7 @@ RUN yarn install
 RUN yarn build
 
 # execution stage
-FROM node:20-alpine
+FROM node:22-alpine
 LABEL maintainer "Satoshi SAKAO <ottijp@users.noreply.github.com>"
 
 WORKDIR /app
