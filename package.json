@@ -1,6 +1,6 @@
 {
   "name": "az-deployment-denoise",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Azure deployment what-if denoiser",
   "main": "dist/index.js",
   "repository": "ottijp/az-deployment-denoise",
